@@ -1,31 +1,32 @@
 package walksy.quickswaprebinder;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.mixin.client.keymapping.KeyMappingAccessor;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
-import walksy.quickswaprebinder.mixin.KeybindingAccessor;
 
 public class RebindQuickSwapMod implements ModInitializer {
 
-    public static KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("Quick Swap Keybind", GLFW.GLFW_KEY_LEFT_SHIFT, "Walksy's Quick Swap Rebind"));
+    public static KeyMapping keyBinding = KeyMappingHelper.registerKeyMapping(
+            new KeyMapping("Quick Swap Keybind", GLFW.GLFW_KEY_LEFT_SHIFT, new KeyMapping.Category(Identifier.fromNamespaceAndPath("walksy", "bind"))));
 
     @Override
     public void onInitialize() {
 
     }
 
-    public static boolean shouldQuickSwap()
-    {
-        int code = InputUtil.fromTranslationKey(keyBinding.getBoundKeyTranslationKey()).getCode();
-        boolean bl2 = ((KeybindingAccessor)keyBinding).getKey().getCategory() == InputUtil.Type.MOUSE;
-        boolean rtrn = (bl2 ? isMouseButtonPressed(MinecraftClient.getInstance().getWindow().getHandle(), code)
-                : isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), code));
+    @SuppressWarnings("all")
+    public static boolean shouldQuickSwap() {
+        final int code = InputConstants.getKey(keyBinding.saveString()).getValue();
+        final long handle = Minecraft.getInstance().getWindow().handle();
+        boolean bl2 = ((KeyMappingAccessor)keyBinding).fabric_getBoundKey().getType() == InputConstants.Type.MOUSE;
 
-        return rtrn;
+        return (bl2 ? isMouseButtonPressed(handle, code)
+                : isKeyPressed(handle, code));
     }
 
     private static boolean isKeyPressed(long handle, int code) {

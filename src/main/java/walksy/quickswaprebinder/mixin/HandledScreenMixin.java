@@ -1,36 +1,23 @@
 package walksy.quickswaprebinder.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.Mouse;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.Inject;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import walksy.quickswaprebinder.RebindQuickSwapMod;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.util.InputUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 
-@Mixin(HandledScreen.class)
+@Mixin(AbstractContainerScreen.class)
 public abstract class HandledScreenMixin {
     @Redirect(
             method = "mouseClicked",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/util/InputUtil;isKeyPressed(JI)Z"
+                    target = "Lnet/minecraft/client/input/MouseButtonEvent;hasShiftDown()Z"
             )
     )
-    private boolean redirectClick(long handle, int keyCode) {
+    private boolean redirectClick(MouseButtonEvent instance) {
         return RebindQuickSwapMod.shouldQuickSwap();
     }
 
@@ -38,22 +25,10 @@ public abstract class HandledScreenMixin {
             method = "mouseReleased",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/util/InputUtil;isKeyPressed(JI)Z"
+                    target = "Lnet/minecraft/client/input/MouseButtonEvent;hasShiftDown()Z"
             )
     )
-    private boolean redirectRelease(long handle, int keyCode) {
+    private boolean redirectRelease(MouseButtonEvent instance) {
         return RebindQuickSwapMod.shouldQuickSwap();
     }
-
-    @Redirect(
-            method = "mouseReleased",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;hasShiftDown()Z"
-            )
-    )
-    private boolean redirectDoubleClick$Release() {
-        return RebindQuickSwapMod.shouldQuickSwap();
-    }
-
 }
