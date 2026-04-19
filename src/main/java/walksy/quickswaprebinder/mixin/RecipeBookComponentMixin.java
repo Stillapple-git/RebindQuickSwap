@@ -10,7 +10,7 @@ import walksy.quickswaprebinder.RebindQuickSwapMod;
 /**
  * Original Commit: https://github.com/Walksy/RebindQuickSwap/pull/1
  */
-@Mixin(RecipeBookComponent.class)
+@Mixin(value = RecipeBookComponent.class, priority = 1500)
 public class RecipeBookComponentMixin {
 
     @Redirect(
